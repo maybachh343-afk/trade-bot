@@ -1,3 +1,5 @@
+> **Deployment update:** Follow [DEPLOYMENT-CHECKPOINTS.md](DEPLOYMENT-CHECKPOINTS.md) for Render + Windows + iPhone. Live execution is disabled in this release; older live instructions below do not enable it.
+
 # Run SENTINEL on your Windows PC
 
 Your PC is the host; Telegram is your remote control. You can use mobile data or any Wi-Fi while away. No port forwarding, public IP, remote desktop, or paid hosting is required by this launcher. RPC/data services may have their own costs.

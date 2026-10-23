@@ -1,14 +1,17 @@
+# Paid, always-on paper deployment. Apply this root Blueprint (not the legacy nested one).
 services:
-  - type: worker
-    name: sentinel-telegram
+  - type: web
+    name: sentinel-terminal
     runtime: docker
     rootDir: sentinel-meme
     dockerfilePath: ./Dockerfile
     dockerContext: .
-    plan: starter
+    plan: 0.5c-512mb
     region: frankfurt
     numInstances: 1
     autoDeployTrigger: "off"
+    healthCheckPath: /healthz
+    maxShutdownDelaySeconds: 60
     disk:
       name: sentinel-state
       mountPath: /var/data
@@ -16,21 +19,32 @@ services:
     envVars:
       - key: DATA_DIR
         value: /var/data
+      - key: BIND_HOST
+        value: 0.0.0.0
       - key: BOT_MODE
         value: paper
       - key: ENABLE_LIVE_TRADING
         value: "NO"
-      - key: EXPECTED_WALLET
-        value: "UNSET"
-      - key: TELEGRAM_BOT_TOKEN
-        sync: false
-      - key: PAIRING_CODE
+      - key: DASHBOARD_PASSWORD
         generateValue: true
       - key: WALLET_VAULT_KEY
         generateValue: true
+      - key: PAIRING_CODE
+        generateValue: true
+      - key: COORDINATOR_DATABASE_URL
+        fromDatabase:
+          name: sentinel-coordinator
+          property: connectionString
       - key: SOLANA_RPC_URL
         sync: false
       - key: SOLANA_WS_URL
         sync: false
       - key: JUPITER_API_KEY
         sync: false
+# Telegram and PumpPortal keys are optional; add them through Render Environment.
+databases:
+  - name: sentinel-coordinator
+    region: frankfurt
+    plan: 0.1c-256mb
+    diskSizeGB: 1
+    ipAllowList: [] # Internal only initially. Add only the PC public IP /32 before PC setup.

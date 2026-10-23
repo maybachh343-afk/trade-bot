@@ -1,3 +1,5 @@
+> **Deployment update:** Follow [DEPLOYMENT-CHECKPOINTS.md](DEPLOYMENT-CHECKPOINTS.md) for Render + Windows + iPhone. Live execution is disabled in this release; older live instructions below do not enable it.
+
 # Phone setup — Telegram + persistent cloud worker
 
 You can perform setup in Telegram and your phone browser. No PC is required by this route. The accounts, hosting purchase, credentials and initial pairing still require your actions; this package has not created them for you.

@@ -1,6 +1,6 @@
 import json, os, sqlite3, tempfile, time, unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 from bot import Store, Keypair, Blocked
 from telegram_control import Control
 from cloud import provision_wallet, CloudBot
@@ -97,6 +97,7 @@ class CloudTests(unittest.TestCase):
         with patch.dict(os.environ,{'BOT_MODE':'live'}):
             with self.assertRaises(Blocked):provision_wallet(self.root,'k'*32)
         self.assertFalse((self.root/'wallet.enc').exists())
+    @patch.dict(os.environ,{"TELEGRAM_BOT_TOKEN":"fixture:token"})
     def test_telegram_failure_pauses_entries(self):
         c=config();s=Store(self.root/'paper.sqlite',c,'paper');self.addCleanup(s.db.close)
         b=CloudBot(c,s,Fake(),control_dir=self.root)
@@ -118,7 +119,7 @@ class CloudTests(unittest.TestCase):
         with s.db:s.db.execute("INSERT INTO orders(mint,side,status,ts) VALUES (?,'buy','failed',?)",(MINT,time.time()))
         class Ready:
             def ready(self):return True
-        b=CloudBot(c,s,Fake(),control_dir=self.root,stream=Ready())
+        b=CloudBot(c,s,Fake(),control_dir=self.root,stream=Ready(),coordinator=Mock())
         with self.assertRaisesRegex(Blocked,'daily entry attempt'):b.trade(MINT,'buy',5000000,'test')
 
 if __name__=='__main__':unittest.main()

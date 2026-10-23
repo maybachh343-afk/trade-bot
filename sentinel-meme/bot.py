@@ -112,6 +112,7 @@ class Providers:
         q['_received'] = time.time()
         return q
     def execute(self, signed, q):
+        raise Blocked('Live execution disabled in this release')
         return self.http.json('https://api.jup.ag/swap/v2/execute', {
             'signedTransaction':signed, 'requestId':q['requestId'], 'lastValidBlockHeight':str(q['lastValidBlockHeight'])},self.jup_headers)
     def transaction(self, signature):
@@ -372,6 +373,9 @@ class Bot:
             require(decrease<=0 or (side=='sell' and old['mint']==mint and decrease<=amount),'unexpected token spending')
         require(time.time()-q['_received']<=45,'order stale after validation')
         return encoded,str(signed.signatures[0])
+    def execution_fence(self):
+        pass
+
     def trade(self,mint,side,amount,reason):
         require(not self.s.pending(),'unresolved transaction blocks submissions')
         require(not (self.control_dir/'HALT').exists(),'HALT active')
@@ -396,6 +400,7 @@ class Bot:
         # Check control files again immediately before durable submission intent.
         require(not (self.control_dir/'HALT').exists(),'HALT active')
         require(side!='buy' or not self.pause_entries(),'entries paused')
+        self.execution_fence()
         with self.s.db:
             cur=self.s.db.execute('INSERT INTO orders(mint,side,amount,min_out,signature,status,ts,reason) VALUES (?,?,?,?,?,?,?,?)',
                  (mint,side,str(amount),q['otherAmountThreshold'],sig,'pending',time.time(),reason))
@@ -435,7 +440,17 @@ class Bot:
                 self.s.audit('exit_blocked',{'mint':p['mint'],'reason':str(e) if isinstance(e,Blocked) else type(e).__name__})
                 # No fresh entries while an existing position cannot be assessed/exited.
                 raise Blocked('position monitoring failed') from None
+    def recover_paper(self):
+        require(self.c['mode']=='paper','paper recovery cannot handle live orders')
+        self.execution_fence()
+        for o in self.s.pending():
+            require(o['signature'] is None,'signed order in paper ledger; manual review required')
+            amount=integer(o['amount']);out=integer(o['min_out']);cap=lamports(self.c['max_tx_cost_sol'])
+            self.s.fill(o,-amount-cap if o['side']=='buy' else out-cap,out if o['side']=='buy' else -amount)
+            self.s.audit('paper_recovered',{'order_id':o['id']})
+
     def cycle(self):
+        if self.c['mode']=='paper' and self.s.pending(): self.recover_paper()
         if self.c['mode']=='live': self.reconcile()
         require(not self.s.pending(),'pending transaction needs reconciliation')
         if (self.control_dir/'HALT').exists(): return

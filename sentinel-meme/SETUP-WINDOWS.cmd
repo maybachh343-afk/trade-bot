@@ -3,7 +3,9 @@ setlocal
 cd /d "%~dp0"
 py -3.12 -c "import sys" >nul 2>&1
 if errorlevel 1 (
-  echo Install Python 3.12 for Windows from python.org, then run this file again.
+  echo Python 3.12 is required by this tested build. Python 3.14 alone is not enough.
+  echo In PowerShell run: py install 3.12
+  echo If your launcher does not support install, use the Python 3.12 Windows installer from python.org.
   echo Keep the Python launcher and Tcl/Tk options selected during installation.
   pause
   exit /b 1
