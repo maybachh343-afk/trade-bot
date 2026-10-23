@@ -1,0 +1,89 @@
+test_developer_outflow_blocks (test_core.ScanTests.test_developer_outflow_blocks) ... ok
+test_full_paper_cycle_and_restart_no_duplicate (test_core.ScanTests.test_full_paper_cycle_and_restart_no_duplicate) ... {"time": "16:47:43", "event": "wallet_buy", "wallet": "5J5NYpScovVCGar3AZCsawL5zo7AgsnNcX5PcuAiWwjg", "mint": "FK3h1m5EAXXhdVq2VxDDeLdnuhtBcRTvPBHGUESM88Zz", "side": "buy", "raw": "100"}
+{"time": "16:47:43", "event": "wallet_buy", "wallet": "2YT7wNZnkXW3DTauC1AiqaYs3J7sCsmSNeNhWVF4xJx6", "mint": "FK3h1m5EAXXhdVq2VxDDeLdnuhtBcRTvPBHGUESM88Zz", "side": "buy", "raw": "100"}
+{"time": "16:47:43", "event": "wallet_buy", "wallet": "7MaHPYbKYuad9dVw2dgCcrzcVovwTvxueossGwEYpmeY", "mint": "FK3h1m5EAXXhdVq2VxDDeLdnuhtBcRTvPBHGUESM88Zz", "side": "buy", "raw": "100"}
+{"time": "16:47:43", "event": "candidate_passed", "mint": "FK3h1m5EAXXhdVq2VxDDeLdnuhtBcRTvPBHGUESM88Zz", "buyers": ["5J5NYpScovVCGar3AZCsawL5zo7AgsnNcX5PcuAiWwjg", "2YT7wNZnkXW3DTauC1AiqaYs3J7sCsmSNeNhWVF4xJx6", "7MaHPYbKYuad9dVw2dgCcrzcVovwTvxueossGwEYpmeY"], "checks": {"test_fixture": true}}
+{"time": "16:47:43", "event": "paper_fill", "order_id": 1, "mint": "FK3h1m5EAXXhdVq2VxDDeLdnuhtBcRTvPBHGUESM88Zz", "side": "buy"}
+ok
+test_latest_sell_removes_buyer (test_core.ScanTests.test_latest_sell_removes_buyer) ... {"time": "16:47:43", "event": "wallet_sell", "wallet": "5J5NYpScovVCGar3AZCsawL5zo7AgsnNcX5PcuAiWwjg", "mint": "FK3h1m5EAXXhdVq2VxDDeLdnuhtBcRTvPBHGUESM88Zz", "side": "sell", "raw": "100"}
+{"time": "16:47:43", "event": "wallet_buy", "wallet": "5J5NYpScovVCGar3AZCsawL5zo7AgsnNcX5PcuAiWwjg", "mint": "FK3h1m5EAXXhdVq2VxDDeLdnuhtBcRTvPBHGUESM88Zz", "side": "buy", "raw": "100"}
+{"time": "16:47:43", "event": "wallet_buy", "wallet": "2YT7wNZnkXW3DTauC1AiqaYs3J7sCsmSNeNhWVF4xJx6", "mint": "FK3h1m5EAXXhdVq2VxDDeLdnuhtBcRTvPBHGUESM88Zz", "side": "buy", "raw": "100"}
+{"time": "16:47:43", "event": "wallet_buy", "wallet": "7MaHPYbKYuad9dVw2dgCcrzcVovwTvxueossGwEYpmeY", "mint": "FK3h1m5EAXXhdVq2VxDDeLdnuhtBcRTvPBHGUESM88Zz", "side": "buy", "raw": "100"}
+ok
+test_repeated_same_wallet_not_three_buyers (test_core.ScanTests.test_repeated_same_wallet_not_three_buyers) ... {"time": "16:47:43", "event": "wallet_buy", "wallet": "5J5NYpScovVCGar3AZCsawL5zo7AgsnNcX5PcuAiWwjg", "mint": "FK3h1m5EAXXhdVq2VxDDeLdnuhtBcRTvPBHGUESM88Zz", "side": "buy", "raw": "100"}
+{"time": "16:47:43", "event": "wallet_buy", "wallet": "5J5NYpScovVCGar3AZCsawL5zo7AgsnNcX5PcuAiWwjg", "mint": "FK3h1m5EAXXhdVq2VxDDeLdnuhtBcRTvPBHGUESM88Zz", "side": "buy", "raw": "100"}
+{"time": "16:47:43", "event": "wallet_buy", "wallet": "5J5NYpScovVCGar3AZCsawL5zo7AgsnNcX5PcuAiWwjg", "mint": "FK3h1m5EAXXhdVq2VxDDeLdnuhtBcRTvPBHGUESM88Zz", "side": "buy", "raw": "100"}
+ok
+test_three_wallet_signal_and_deduplication (test_core.ScanTests.test_three_wallet_signal_and_deduplication) ... {"time": "16:47:43", "event": "wallet_buy", "wallet": "5J5NYpScovVCGar3AZCsawL5zo7AgsnNcX5PcuAiWwjg", "mint": "FK3h1m5EAXXhdVq2VxDDeLdnuhtBcRTvPBHGUESM88Zz", "side": "buy", "raw": "100"}
+{"time": "16:47:43", "event": "wallet_buy", "wallet": "2YT7wNZnkXW3DTauC1AiqaYs3J7sCsmSNeNhWVF4xJx6", "mint": "FK3h1m5EAXXhdVq2VxDDeLdnuhtBcRTvPBHGUESM88Zz", "side": "buy", "raw": "100"}
+{"time": "16:47:43", "event": "wallet_buy", "wallet": "7MaHPYbKYuad9dVw2dgCcrzcVovwTvxueossGwEYpmeY", "mint": "FK3h1m5EAXXhdVq2VxDDeLdnuhtBcRTvPBHGUESM88Zz", "side": "buy", "raw": "100"}
+ok
+test_excess_native_spend_rejected (test_core.SigningTests.test_excess_native_spend_rejected) ... ok
+test_missing_output_rejected (test_core.SigningTests.test_missing_output_rejected) ... ok
+test_real_signature_verifies (test_core.SigningTests.test_real_signature_verifies) ... ok
+test_timeout_persists_intent_then_blocks_retry (test_core.SigningTests.test_timeout_persists_intent_then_blocks_retry) ... {"time": "16:47:43", "event": "submitting", "order_id": 1, "signature": "d2JaWoCAADh2VcZLXinahEnkNptdZ4Hi6ZCavbSa8gBTBkTPG779WpoKVLDEwUUJyfyvJodND5pv2dkb45bcLRE", "side": "buy", "mint": "FK3h1m5EAXXhdVq2VxDDeLdnuhtBcRTvPBHGUESM88Zz"}
+{"time": "16:47:43", "event": "submission_uncertain", "order_id": 1, "signature": "d2JaWoCAADh2VcZLXinahEnkNptdZ4Hi6ZCavbSa8gBTBkTPG779WpoKVLDEwUUJyfyvJodND5pv2dkb45bcLRE"}
+{"time": "16:47:43", "event": "pending", "order_id": 1, "signature": "d2JaWoCAADh2VcZLXinahEnkNptdZ4Hi6ZCavbSa8gBTBkTPG779WpoKVLDEwUUJyfyvJodND5pv2dkb45bcLRE"}
+ok
+test_wrong_taker_rejected (test_core.SigningTests.test_wrong_taker_rejected) ... ok
+test_buy_and_exit_accounting (test_core.Tests.test_buy_and_exit_accounting) ... {"time": "16:47:43", "event": "paper_fill", "order_id": 1, "mint": "FK3h1m5EAXXhdVq2VxDDeLdnuhtBcRTvPBHGUESM88Zz", "side": "buy"}
+{"time": "16:47:43", "event": "paper_fill", "order_id": 2, "mint": "FK3h1m5EAXXhdVq2VxDDeLdnuhtBcRTvPBHGUESM88Zz", "side": "sell"}
+ok
+test_changed_config_rejected (test_core.Tests.test_changed_config_rejected) ... ok
+test_config_rejects_empty_wallets (test_core.Tests.test_config_rejects_empty_wallets) ... ok
+test_config_valid (test_core.Tests.test_config_valid) ... ok
+test_daily_risk_includes_open_principal (test_core.Tests.test_daily_risk_includes_open_principal) ... {"time": "16:47:43", "event": "paper_fill", "order_id": 1, "mint": "FK3h1m5EAXXhdVq2VxDDeLdnuhtBcRTvPBHGUESM88Zz", "side": "buy"}
+ok
+test_failed_transaction_fee_recorded (test_core.Tests.test_failed_transaction_fee_recorded) ... {"time": "16:47:43", "event": "failed_on_chain", "order_id": 1}
+ok
+test_failed_tx_not_a_buy (test_core.Tests.test_failed_tx_not_a_buy) ... ok
+test_finalized_reconciliation (test_core.Tests.test_finalized_reconciliation) ... {"time": "16:47:43", "event": "filled", "order_id": 1, "side": "buy", "mint": "FK3h1m5EAXXhdVq2VxDDeLdnuhtBcRTvPBHGUESM88Zz", "signature": "sig"}
+ok
+test_halt_blocks_all (test_core.Tests.test_halt_blocks_all) ... ok
+test_lifetime_budget (test_core.Tests.test_lifetime_budget) ... ok
+test_lock_excludes_other_workers (test_core.Tests.test_lock_excludes_other_workers) ... ok
+test_no_duplicate_fill (test_core.Tests.test_no_duplicate_fill) ... {"time": "16:47:43", "event": "paper_fill", "order_id": 1, "mint": "FK3h1m5EAXXhdVq2VxDDeLdnuhtBcRTvPBHGUESM88Zz", "side": "buy"}
+ok
+test_pause_blocks_buys_not_exits (test_core.Tests.test_pause_blocks_buys_not_exits) ... {"time": "16:47:43", "event": "paper_fill", "order_id": 1, "mint": "FK3h1m5EAXXhdVq2VxDDeLdnuhtBcRTvPBHGUESM88Zz", "side": "buy"}
+{"time": "16:47:43", "event": "paper_fill", "order_id": 2, "mint": "FK3h1m5EAXXhdVq2VxDDeLdnuhtBcRTvPBHGUESM88Zz", "side": "sell"}
+ok
+test_pending_blocks_duplicate_submission (test_core.Tests.test_pending_blocks_duplicate_submission) ... {"time": "16:47:43", "event": "pending", "order_id": 1, "signature": "sig"}
+ok
+test_quote_rejects_changed_mint (test_core.Tests.test_quote_rejects_changed_mint) ... ok
+test_quote_rejects_excess_slippage (test_core.Tests.test_quote_rejects_excess_slippage) ... ok
+test_quote_rejects_nan_and_absent_impact (test_core.Tests.test_quote_rejects_nan_and_absent_impact) ... ok
+test_swap_classification (test_core.Tests.test_swap_classification) ... ok
+test_time_exit (test_core.Tests.test_time_exit) ... {"time": "16:47:43", "event": "paper_fill", "order_id": 1, "mint": "FK3h1m5EAXXhdVq2VxDDeLdnuhtBcRTvPBHGUESM88Zz", "side": "buy"}
+{"time": "16:47:43", "event": "paper_fill", "order_id": 2, "mint": "FK3h1m5EAXXhdVq2VxDDeLdnuhtBcRTvPBHGUESM88Zz", "side": "sell"}
+ok
+test_transfer_is_not_a_buy (test_core.Tests.test_transfer_is_not_a_buy) ... ok
+test_unknown_developer_blocks (test_core.Tests.test_unknown_developer_blocks) ... ok
+test_active_authority_rejected (test_core.TokenCheckTests.test_active_authority_rejected) ... ok
+test_token2022_rejected (test_core.TokenCheckTests.test_token2022_rejected) ... ok
+test_daily_entry_attempt_limit (test_telegram.CloudTests.test_daily_entry_attempt_limit) ... ok
+test_live_missing_vault_never_creates_replacement (test_telegram.CloudTests.test_live_missing_vault_never_creates_replacement) ... ok
+test_stream_needs_all_subscriptions_and_warmup (test_telegram.CloudTests.test_stream_needs_all_subscriptions_and_warmup) ... ok
+test_stream_rejects_unrecognized_notification (test_telegram.CloudTests.test_stream_rejects_unrecognized_notification) ... ok
+test_telegram_failure_pauses_entries (test_telegram.CloudTests.test_telegram_failure_pauses_entries) ... ok
+test_wallet_vault_survives_restart (test_telegram.CloudTests.test_wallet_vault_survives_restart) ... ok
+test_wrong_vault_secret_fails (test_telegram.CloudTests.test_wrong_vault_secret_fails) ... ok
+test_bad_pair_denied (test_telegram.TelegramTests.test_bad_pair_denied) ... ok
+test_exitall_is_confirmed_and_pause_sticky (test_telegram.TelegramTests.test_exitall_is_confirmed_and_pause_sticky) ... ok
+test_expired_confirmation_cannot_enable_entries (test_telegram.TelegramTests.test_expired_confirmation_cannot_enable_entries) ... ok
+test_fill_alert_net_pnl_and_mode (test_telegram.TelegramTests.test_fill_alert_net_pnl_and_mode) ... ok
+test_group_commands_rejected (test_telegram.TelegramTests.test_group_commands_rejected) ... ok
+test_notification_retry_and_durable_dedup (test_telegram.TelegramTests.test_notification_retry_and_durable_dedup) ... ok
+test_pair_cannot_be_taken_over (test_telegram.TelegramTests.test_pair_cannot_be_taken_over) ... ok
+test_pair_owner_persisted (test_telegram.TelegramTests.test_pair_owner_persisted) ... ok
+test_pending_blocks_resume (test_telegram.TelegramTests.test_pending_blocks_resume) ... ok
+test_resume_requires_fresh_single_use_confirmation (test_telegram.TelegramTests.test_resume_requires_fresh_single_use_confirmation) ... ok
+test_stale_resume_rejected (test_telegram.TelegramTests.test_stale_resume_rejected) ... ok
+test_unhalt_keeps_entries_paused (test_telegram.TelegramTests.test_unhalt_keeps_entries_paused) ... ok
+test_unknown_text_not_stored (test_telegram.TelegramTests.test_unknown_text_not_stored) ... ok
+test_update_replay_is_ignored (test_telegram.TelegramTests.test_update_replay_is_ignored) ... ok
+test_watched_wallets_validated (test_telegram.TelegramTests.test_watched_wallets_validated) ... ok
+
+----------------------------------------------------------------------
+Ran 55 tests in 0.412s
+
+OK

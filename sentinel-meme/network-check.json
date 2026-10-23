@@ -1,0 +1,11 @@
+{
+  "jupiter_order": {
+    "http_status": 200,
+    "response_type": "dict",
+    "adapter_validation": "passed"
+  },
+  "dexscreener": {
+    "status": "not_verified",
+    "http_status": 403
+  }
+}
