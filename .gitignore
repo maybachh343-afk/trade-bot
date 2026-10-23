@@ -1,0 +1,17 @@
+.env
+.env.*
+!.env.example
+*.sqlite*
+*.enc
+trading-wallet.json
+config.json
+.venv/
+__pycache__/
+PAUSE
+HALT
+EXIT_ALL
+CLOSE_*
+wallet-public.json
+control.sqlite*
+health.json
+telegram-alive
