@@ -1,33 +1,4 @@
-services:
-  - type: worker
-    name: sentinel-telegram
-    runtime: docker
-    plan: starter
-    region: frankfurt
-    numInstances: 1
-    autoDeployTrigger: "off"
-    disk:
-      name: sentinel-state
-      mountPath: /var/data
-      sizeGB: 1
-    envVars:
-      - key: DATA_DIR
-        value: /var/data
-      - key: BOT_MODE
-        value: paper
-      - key: ENABLE_LIVE_TRADING
-        value: "NO"
-      - key: EXPECTED_WALLET
-        value: "UNSET"
-      - key: TELEGRAM_BOT_TOKEN
-        sync: false
-      - key: PAIRING_CODE
-        generateValue: true
-      - key: WALLET_VAULT_KEY
-        generateValue: true
-      - key: SOLANA_RPC_URL
-        sync: false
-      - key: SOLANA_WS_URL
-        sync: false
-      - key: JUPITER_API_KEY
-        sync: false
+# Deprecated location. Use repository-root render.yaml for the complete disk-backed
+# web service and shared PostgreSQL coordinator. This file intentionally defines
+# no resources; do not use it to sync an existing deployment.
+services: []

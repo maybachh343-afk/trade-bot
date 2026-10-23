@@ -4,12 +4,16 @@ from pathlib import Path
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from bot import Bot, Store, Providers, Keypair, Blocked, require, load_config, worker_lock, lamports
 from stream import WalletStream
+from coordination import Coordinator
 from telegram_control import Telegram, Control
 
 STOP=threading.Event()
 
 def atomic_json(path,value):
-    tmp=path.with_suffix('.tmp');tmp.write_text(json.dumps(value));tmp.replace(path)
+    import tempfile
+    with tempfile.NamedTemporaryFile(mode='w',dir=path.parent,delete=False) as f:
+        json.dump(value,f);tmp=Path(f.name)
+    tmp.replace(path)
 
 def vault_key(secret):
     require(len(secret)>=32,'WALLET_VAULT_KEY must be a secret of at least 32 characters')
@@ -28,9 +32,10 @@ def provision_wallet(root,secret):
     return key
 
 class CloudBot(Bot):
-    def __init__(self,*args,stream=None,**kwargs):super().__init__(*args,**kwargs);self.stream=stream
+    def __init__(self,*args,stream=None,coordinator=None,**kwargs):super().__init__(*args,**kwargs);self.stream=stream;self.coordinator=coordinator
     def pause_entries(self):
         if super().pause_entries():return True
+        if not os.environ.get('TELEGRAM_BOT_TOKEN'):return False
         try:return time.time()-float((self.control_dir/'telegram-alive').read_text())>60
         except (OSError,ValueError):return True
     def scan(self):
@@ -43,7 +48,14 @@ class CloudBot(Bot):
         for (mint,w),r in latest.items():
             if r['side']=='buy':groups.setdefault(mint,[]).append(w)
         return {m:ws for m,ws in groups.items() if len(ws)>=self.c['min_buyers']}
+    def execution_fence(self):
+        require(self.coordinator is not None,"Shared coordinator required")
+        self.coordinator.check()
+
     def trade(self,mint,side,amount,reason):
+        require(self.c["mode"]=="paper","Live execution disabled in this release")
+        require(self.coordinator is not None,"Shared coordinator required")
+        self.coordinator.check()
         if side=='buy':
             require(self.stream is not None and self.stream.ready(),'wallet stream not ready')
             since=int(time.time()//86400)*86400
@@ -70,20 +82,22 @@ def telegram_loop(root):
 
 def serve(root):
     root=Path(root);root.mkdir(parents=True,exist_ok=True)
-    require(os.environ.get('TELEGRAM_BOT_TOKEN') and len(os.environ.get('PAIRING_CODE',''))>=24,'Telegram token and pairing code required')
+    if os.environ.get('TELEGRAM_BOT_TOKEN'):require(len(os.environ.get('PAIRING_CODE',''))>=24,'Telegram pairing code required')
     with worker_lock(root/'cloud.lock'):
         key=provision_wallet(root,os.environ.get('WALLET_VAULT_KEY',''))
         path=root/'config.json'
-        if not path.exists():atomic_json(path,json.loads(Path('config.scalp.example.json').read_text()))
+        if not path.exists():atomic_json(path,json.loads(Path(__file__).with_name('config.scalp.example.json').read_text()))
         # A restart never silently enables new entries.
         (root/'PAUSE').touch()
-        thread=threading.Thread(target=telegram_loop,args=(root,),daemon=True);thread.start()
+        thread=threading.Thread(target=telegram_loop,args=(root,),daemon=True) if os.environ.get('TELEGRAM_BOT_TOKEN') else None
+        if thread:thread.start()
+        coordinator=Coordinator(root)
         s=stream=b=None; last_error=None
         try:
             while not STOP.is_set():
                 try:
                     c=json.loads(path.read_text())
-                    requested=os.environ.get('BOT_MODE','paper');require(requested in ('paper','live'),'BOT_MODE must be paper or live')
+                    requested=os.environ.get('BOT_MODE','paper');require(requested=='paper','Live execution disabled in this release')
                     if c['mode']!=requested:
                         old=root/(c['mode']+'.sqlite')
                         if old.exists():
@@ -106,7 +120,7 @@ def serve(root):
                         require(ledger.exists() or not marker.exists(),'ledger missing: restore backup; refusing to reset trading history')
                         s=Store(ledger,c,str(key.pubkey()) if c['mode']=='live' else 'paper')
                         marker.touch()
-                        p=Providers(c);b=CloudBot(c,s,p,key if c['mode']=='live' else None,root)
+                        p=Providers(c);b=CloudBot(c,s,p,key if c['mode']=='live' else None,root,coordinator=coordinator)
                     else:
                         require(c['mode']==s.get('mode'),'restart required for mode switch')
                         fixed={k:v for k,v in c.items() if k not in ('watch_wallets','developer_wallets')}
@@ -116,6 +130,7 @@ def serve(root):
                         if stream:stream.close()
                         stream=WalletStream(c,root,root/(c['mode']+'.sqlite'),os.environ.get('SOLANA_WS_URL',''))
                         stream.start();b.stream=stream
+                    coordinator.check()
                     # Heartbeat refreshed before and after work. Commands cannot assume a stuck worker is ready.
                     atomic_json(root/'health.json',{'at':time.time(),'status':'ready','detail':'Stream ready' if stream.ready() else 'Stream warming up/disconnected; entries blocked'})
                     # Circuit breakers keep exits active and require explicit operator resume.
@@ -143,9 +158,10 @@ def serve(root):
                     STOP.wait(3)
         finally:
             (root/'PAUSE').touch()
+            coordinator.close()
             if stream:stream.close()
             if s:s.db.close()
-            thread.join(timeout=15)
+            if thread:thread.join(timeout=15)
             atomic_json(root/'health.json',{'at':time.time(),'status':'stopped','detail':'No monitoring until the server restarts'})
 
 if __name__=='__main__':

@@ -15,3 +15,12 @@ wallet-public.json
 control.sqlite*
 health.json
 telegram-alive
+
+credentials.dpapi
+deployment-id
+market.json
+market.tmp
+host*.log
+*-ledger-established
+STOP_HOST
+*.lock

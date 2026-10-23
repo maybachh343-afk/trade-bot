@@ -1,3 +1,5 @@
+> **Deployment update:** Follow [DEPLOYMENT-CHECKPOINTS.md](DEPLOYMENT-CHECKPOINTS.md) for Render + Windows + iPhone. Live execution is disabled in this release; older live instructions below do not enable it.
+
 # SENTINEL Telegram v0.2
 
 **Phone-operated Solana auto-trading prototype. Not deployed. Not audited. No real-money execution or Telegram delivery tested with your accounts.**

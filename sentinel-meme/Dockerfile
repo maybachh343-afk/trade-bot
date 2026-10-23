@@ -5,4 +5,4 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 RUN python -m unittest discover -s . -p 'test_*.py'
-CMD ["python", "cloud.py"]
+CMD ["python", "service.py"]

@@ -49,7 +49,7 @@ def read_settings(root):
 
 
 def validate(c):
-    if ':' not in c.get('TELEGRAM_BOT_TOKEN', ''):
+    if c.get('TELEGRAM_BOT_TOKEN') and ':' not in c['TELEGRAM_BOT_TOKEN']:
         raise ValueError('Enter the token from your own Telegram BotFather bot.')
     for key, prefix in [('SOLANA_RPC_URL', 'https://'), ('SOLANA_WS_URL', 'wss://')]:
         if c.get(key) and not c[key].startswith(prefix):
@@ -57,23 +57,18 @@ def validate(c):
     if c.get('BOT_MODE') not in ('paper', 'live'):
         raise ValueError('Invalid trading mode')
     if c['BOT_MODE'] == 'live':
-        from solders.pubkey import Pubkey
-        try:
-            Pubkey.from_string(c.get('EXPECTED_WALLET', ''))
-        except ValueError:
-            raise ValueError('Enter the dedicated wallet address shown by /wallet.') from None
-        if not all(c.get(k) for k in ('SOLANA_RPC_URL', 'SOLANA_WS_URL', 'JUPITER_API_KEY')):
-            raise ValueError('Live mode requires both Solana endpoints and a Jupiter API key.')
+        raise ValueError('Live execution is disabled in this release')
 
 
 def child_environment(c, root):
     validate(c)
     env = os.environ.copy()
     for key in ('TELEGRAM_BOT_TOKEN', 'SOLANA_RPC_URL', 'SOLANA_WS_URL',
-                'JUPITER_API_KEY', 'PAIRING_CODE', 'WALLET_VAULT_KEY', 'EXPECTED_WALLET'):
+                'JUPITER_API_KEY', 'PAIRING_CODE', 'WALLET_VAULT_KEY', 'EXPECTED_WALLET',
+                'DASHBOARD_PASSWORD','DASHBOARD_ORIGIN','COORDINATOR_DATABASE_URL','PUMPPORTAL_API_KEY'):
         env[key] = c.get(key, '')
     env.update(DATA_DIR=str(root), BOT_MODE=c['BOT_MODE'],
-               ENABLE_LIVE_TRADING='YES' if c['BOT_MODE'] == 'live' else 'NO')
+               ENABLE_LIVE_TRADING='NO', BIND_HOST='127.0.0.1', PORT='8765')
     return env
 
 
@@ -102,23 +97,26 @@ def setup(root):
         'WALLET_VAULT_KEY': secrets.token_urlsafe(48), 'BOT_MODE': 'paper'}
     window = tk.Tk()
     window.title('SENTINEL - Windows host')
-    window.geometry('740x650')
-    tk.Label(window, text='Control this PC from Telegram, anywhere.', font=('', 16)).pack(pady=12)
+    window.geometry('740x900')
+    tk.Label(window, text='SENTINEL private dashboard + optional Telegram', font=('', 16)).pack(pady=12)
     tk.Label(window, text='Starts paused. Leave PC powered on and signed in. Locking the screen is OK.').pack()
     fields = {}
     for key, title in [('TELEGRAM_BOT_TOKEN', 'Telegram bot token (from @BotFather)'),
                        ('SOLANA_RPC_URL', 'Solana HTTPS RPC URL (can add later)'),
                        ('SOLANA_WS_URL', 'Solana WSS URL (can add later)'),
                        ('JUPITER_API_KEY', 'Jupiter API key (can add later)'),
-                       ('EXPECTED_WALLET', 'Live only: dedicated public address from /wallet')]:
+                       ('DASHBOARD_PASSWORD','Dashboard password (at least 32 characters)'),
+                       ('DASHBOARD_ORIGIN','Tailscale HTTPS origin (no trailing slash)'),
+                       ('COORDINATOR_DATABASE_URL','Shared PostgreSQL URL (same database as Render)'),
+                       ('PUMPPORTAL_API_KEY','PumpPortal discovery API key (optional)')]:
         tk.Label(window, text=title).pack(anchor='w', padx=24, pady=(8, 0))
         v = tk.StringVar(value=c.get(key, ''))
-        tk.Entry(window, textvariable=v, width=95, show='' if key == 'EXPECTED_WALLET' else '*').pack(padx=24)
+        tk.Entry(window, textvariable=v, width=95, show='' if key == 'DASHBOARD_ORIGIN' else '*').pack(padx=24)
         fields[key] = v
     auto = tk.BooleanVar(value=c.get('autostart', True))
-    live = tk.BooleanVar(value=c['BOT_MODE'] == 'live')
+    live = tk.BooleanVar(value=False)
     tk.Checkbutton(window, text='Start after I sign into Windows', variable=auto).pack(anchor='w', padx=24, pady=8)
-    tk.Checkbutton(window, text='LIVE trading: real funds at risk (leave off for setup/testing)', variable=live).pack(anchor='w', padx=24)
+    tk.Checkbutton(window, text='Live execution locked for this release', variable=live, state='disabled').pack(anchor='w', padx=24)
     tk.Label(window, text='Pair in a private chat with YOUR bot using this command:').pack(pady=(10, 0))
     pairing = tk.Entry(window, width=75)
     pairing.insert(0, '/pair ' + c['PAIRING_CODE'])
@@ -131,6 +129,9 @@ def setup(root):
                   'BOT_MODE': 'live' if live.get() else 'paper', 'autostart': auto.get()}
         try:
             validate(next_c)
+            if len(next_c.get("DASHBOARD_PASSWORD",""))<32:raise ValueError("Use a dashboard password of at least 32 characters")
+            if not next_c.get("DASHBOARD_ORIGIN","").startswith("https://") or next_c["DASHBOARD_ORIGIN"].endswith("/"):raise ValueError("Use the exact Tailscale HTTPS origin without a trailing slash")
+            if not next_c.get("COORDINATOR_DATABASE_URL",""):raise ValueError("Enter the shared coordinator database URL")
             if live.get() and not messagebox.askyesno('Enable real-money execution?',
                     'Only proceed after paper testing and reviewing the wallet and limits. '
                     'The bot can lose funds and exits can fail. Enable live mode?'):
@@ -182,11 +183,20 @@ def run(root):
                 if log.exists() and log.stat().st_size > 1_000_000:
                     log.replace(root / 'host.previous.log')
                 with log.open('ab') as output:
-                    child = subprocess.Popen([sys.executable, '-u', str(APP / 'cloud.py')],
+                    child = subprocess.Popen([sys.executable, '-u', str(APP / 'service.py')],
                                              cwd=APP, env=env, stdout=output, stderr=output,
                                              creationflags=subprocess.CREATE_NO_WINDOW)
+                    started=time.time(); last_probe=started
                     while child.poll() is None and not (root / 'STOP_HOST').exists():
                         time.sleep(1)
+                        if time.time()-last_probe>30:
+                            last_probe=time.time()
+                            try:
+                                import urllib.request
+                                with urllib.request.urlopen('http://127.0.0.1:8765/healthz',timeout=5) as response:
+                                    if response.status!=200:raise RuntimeError()
+                            except Exception:
+                                if time.time()-started>120:child.terminate();child.wait(timeout=20)
                 if (root / 'STOP_HOST').exists():
                     break
                 for _ in range(15):
